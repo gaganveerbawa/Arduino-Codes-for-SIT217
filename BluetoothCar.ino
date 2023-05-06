@@ -1,134 +1,97 @@
-#include <LiquidCrystal_I2C.h>
-#include <Wire.h>
-
-// LCD library
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-
+// C++ code
+//
 int m1 = 4;
 int m2 = 5;
 int m3 = 6;
 int m4 = 7;
-int ir = 3;
 
-// Variable for storing bluetooth signal
-char bluetoothInput;
-bool bluetoothConnected = false;
+char input;
 
-void setup() {
-  // MOtor Pins as Output
+void setup()
+{
   pinMode(m1, OUTPUT);
   pinMode(m2, OUTPUT);
   pinMode(m3, OUTPUT);
   pinMode(m4, OUTPUT);
-  pinMode(10, OUTPUT);
-  pinMode(11, OUTPUT);
-  pinMode(ir, INPUT);
+  pinMode(10,OUTPUT);
+  pinMode(11,OUTPUT);
 
-  // starting Serial Monitor and Lcd
   Serial.begin(9600);
-  lcd.begin();
-
-  // Initialize the flag to false
-  bluetoothConnected = false;
-
 }
 
-void loop() {
+void loop()
+{
 
-  // Reading Potentiometer Value
-  int speedIN = analogRead(A0);
-  int speedOUT = speedIN / 4;
+  int potentiometer = analogRead(A0);
+  int potent = potentiometer/4;
 
-  // Writing the speed to the motordriver Speed Pins (ENA) AND (END)
-  analogWrite(10, speedOUT);
-  analogWrite(11, speedOUT);
+  analogWrite(10, potent);
+  analogWrite(11, potent);
 
-  if (bluetoothConnected && digitalRead(ir) == HIGH) {
-    // Obstacle detected, stop the car
-    stop();
-    delay(1000);
-    backward();
-    delay(1000);
-    stop();
-    // lcd.print("Obstacle detected");
-  } else {
 
-    if (Serial.available()) {
-      // wait a bit for the entire message to arrive
-      delay(100);
-      // Clearing Screen
-      lcd.clear();
-
-      bluetoothConnected = true;
-      while (Serial.available()) {
-        bluetoothInput = Serial.read();
-
-        switch (bluetoothInput) {
-          case 'F':  // Case for Moving Forward
-            forward();
-            lcd.print("Moving Forward");
-            break;
-
-          case 'G':  // Case for Moving Backward
-            backward();
-            lcd.print("Moving Backward");
-            break;
-
-          case 'L':  // Case for Moving Left
-            left();
-            lcd.print("Moving Left");
-            break;
-
-          case 'R':  // Case for Moving Right
-            right();
-            lcd.print("Moving Right");
-            break;
-
-          case 'S':  // Case for Stop
-            stop();
-            lcd.print("STOPPED");
-            break;
-        }
-      }
+  while(Serial.available())
+  {
+    input =Serial.read();
+    if(input == 'F')
+    {
+      forward();
     }
+    else if (input== 'R')
+    {
+      right();      
+    }
+    else if (input== 'L')
+    {
+      left();    
+    }  
+    else if (input== 'G')
+    {
+      backward();    
+    }      
+    else if (input== 'S')
+    {
+      stop();    
+    }  
   }
+
 }
-// car to move forward Function
-void forward() {
-  digitalWrite(m1, LOW);
-  digitalWrite(m2, HIGH);
+
+void forward()
+  {
+  digitalWrite(m2, LOW);
+  digitalWrite(m1, HIGH);
   digitalWrite(m3, HIGH);
   digitalWrite(m4, LOW);
 }
 
-// car to move backward Function
-void backward() {
-  digitalWrite(m1, HIGH);
+void stop()
+  {
   digitalWrite(m2, LOW);
+  digitalWrite(m1, LOW);
+  digitalWrite(m3, LOW);
+  digitalWrite(m4, LOW);
+}
+
+void backward()
+  {
+  digitalWrite(m2, HIGH);
+  digitalWrite(m1, LOW);
   digitalWrite(m3, LOW);
   digitalWrite(m4, HIGH);
 }
 
-// car to move left Function
-void left() {
-  digitalWrite(m1, HIGH);
-  digitalWrite(m2, LOW);
+void right()
+  {
+  digitalWrite(m2, HIGH);
+  digitalWrite(m1, LOW);
   digitalWrite(m3, HIGH);
   digitalWrite(m4, LOW);
 }
 
-// car to move right Function
-void right() {
-  digitalWrite(m1, LOW);
-  digitalWrite(m2, HIGH);
+void left()
+  {
+  digitalWrite(m2, LOW);
+  digitalWrite(m1, HIGH);
   digitalWrite(m3, LOW);
   digitalWrite(m4, HIGH);
-}
-
-// car to stop Function
-void stop() {
-  digitalWrite(m1, LOW);
-  digitalWrite(m2, LOW);
-  digitalWrite(m3, LOW);
-  digitalWrite(m4, LOW);
 }
